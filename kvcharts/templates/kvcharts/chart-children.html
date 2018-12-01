@@ -1,0 +1,64 @@
+<div id="chart-children">
+</div>
+
+<script type="text/javascript">
+var backend_data = {{ data_chart_children | safe }};
+
+function generate_option(data_chart) {
+    var children_functions = [];
+    var series = [];
+    for (i = 0; i < data_chart.children.length; i++) {
+        children_functions.push(data_chart.children[i].function_name);
+        series.push({
+            'name': data_chart.children[i].function_name,
+            'type': 'line',
+            'stack': 'total',
+            areaStyle: {},
+            data: data_chart.children[i].points
+        })
+    }
+
+    var option = {
+        title: {
+            text: 'test',
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        },
+        legend: {
+            data: children_functions,
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            data: data_chart.timestamps
+        }],
+        yAxis: [{
+            type: 'value'
+        }],
+        series: series
+    }
+    return option
+}
+
+var div_id = "chart-children";
+var div_chart = echarts.init(document.getElementById(div_id));
+div_chart.setOption(generate_option(backend_data));
+</script>

@@ -35,7 +35,11 @@ def _get_chart_children(method):
 
 
 def detail(request, method_name):
-    import pdb; pdb.set_trace()
+    try:
+        level, name = method_name.split('-')
+    except ValueError:
+        return HttpResponse(status=400, content='bad method name')
+
     try:
         method = TiMethod.objects.get(name=name, level=level)
     except TiMethod.DoesNotExist:
