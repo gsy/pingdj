@@ -3,6 +3,7 @@ import json
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from dajngo.utils import timezone
 
 from .models import TiBenchResult, TiMethod
 
@@ -43,12 +44,13 @@ def put_result(request):
     method, _ = TiMethod.objects.get_or_create(name=method_name, level=level)
 
     kwargs = {'method': method}
-    kwargs['args'] = data.get('args', '{}')
-    args = json.loads(kwargs['args'])
+    args = json.loads(data.get('args', '{}'))
+    kwargs['args'] = json.dumps(args, sort_keys=True)
     kwargs['key_length'] = int(args.get('key_length', 0))
     kwargs['value_length'] = int(args.get('value_length', 0))
 
     estimates = json.loads(data.get('estimates', '{}'))
+    kwargs['estimates'] = json.dumps(estimates, sort_keys=True)
     mean = estimates['Mean']['point_estimate']
     lower_bound = estimates['Mean']['confidence_interval']['lower_bound']
     upper_bound = estimates['Mean']['confidence_interval']['upper_bound']
@@ -57,7 +59,8 @@ def put_result(request):
     kwargs['upper_bound'] = upper_bound
 
     try:
-        kwargs['ts'] = datetime.datetime.strptime(data['ts'], '%Y-%m-%d %H:%M:%S')
+        dt = datetime.datetime.strptime(data['ts'], '%Y-%m-%d %H:%M:%S')
+        kwargs['ts'] = timezone.make_aware(dt)
     except:
         return HttpResponse(status=400, content='invalid ts value')
 
