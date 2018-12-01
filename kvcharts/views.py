@@ -1,5 +1,14 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+def charts(request):
+    context = {
+        "data": [
+            {"value": 235, "name": '视频广告'},
+            {"value": 274, "name": '联盟广告'},
+            {"value": 310, "name": '邮件营销'},
+            {"value": 335, "name": '直接访问'},
+            {"value": 400, "name": '搜索引擎'}
+        ]
+    }
+    return render(request, 'kvcharts/index.html', context)

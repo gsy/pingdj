@@ -120,4 +120,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-from .settings_local import *
+if os.path.exists(os.path.join(BASE_DIR, 'pingdj/settings_local.py')):
+    from .settings_local import *
