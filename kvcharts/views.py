@@ -24,7 +24,7 @@ def _get_chart_children(method):
     if not children:
         return data
     for item in children:
-        ts_list, mean_list = _get_chart_children(item)
+        ts_list, mean_list = _get_child_points(item)
         if len(data['timestamps']) == 0:
             data['timestamps'] = ts_list
         data['children'].append({
