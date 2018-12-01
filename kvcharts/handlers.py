@@ -7,6 +7,11 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import TiBenchResult, TiMethod
 
 
+def do_raise(request):
+    foo = bar
+    return HttpResponse("ok")
+
+
 @csrf_exempt
 def put_result(request):
     """
