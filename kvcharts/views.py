@@ -15,7 +15,7 @@ def _get_charts(name, level):
     upper_bounds = []
     means = []
     for item in charts:
-        timestaps.append(item.ts)
+        timestaps.append(item.ts.strftime('%H:%M:%S'))
         lower_bounds.append(item.lower_bound)
         upper_bounds.append(item.upper_bound)
         means.append(item.mean)
