@@ -1,6 +1,7 @@
 import datetime
 import json
 
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -69,5 +70,9 @@ def put_result(request):
     kwargs_copy.pop('ts')
     kwargs_copy.pop('method')
 
-    TiBenchResult.objects.create(**kwargs)
+    try:
+        TiBenchResult.objects.create(**kwargs)
+    except IntegrityError as e:
+        return HttpResponse(status=400, content='IntegrityError: {}'.format(e))
+
     return HttpResponse(json.dumps(kwargs_copy, indent=4))
