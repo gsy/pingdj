@@ -1,6 +1,49 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 
 from .models import TiBenchResult, TiMethod
+
+
+def _get_child_points(method):
+    charts = TiBenchResult.objects.filter(
+        method=method,
+        key_length=64,
+        value_length=64,
+    ).order_by('ts')
+    timestaps = []
+    means = []
+    for item in charts:
+        timestaps.append(item.ts.strftime('%H:%M:%S'))
+        means.append(item.mean)
+    return timestaps, means
+
+
+def _get_chart_children(method):
+    data = {'timestamps': [], 'children': []}
+    children = TiMethod.objects.filter(parent=method)
+    if not children:
+        return data
+    for item in children:
+        ts_list, mean_list = _get_chart_children(item)
+        if len(data['timestamps']) == 0:
+            data['timestamps'] = ts_list
+        data['children'].append({
+            'function_name': item.full_name(),
+            'points': mean_list,
+        })
+    return data
+
+
+def detail(request, method_name):
+    import pdb; pdb.set_trace()
+    try:
+        method = TiMethod.objects.get(name=name, level=level)
+    except TiMethod.DoesNotExist:
+        return HttpResponse(status=400, content='no such method')
+
+    data_chart_children = _get_chart_children(method)
+    context = {"data_chart_children": data_chart_children}
+    return render(request, 'kvcharts/detail.html', context)
 
 
 def _get_charts(name, level):
