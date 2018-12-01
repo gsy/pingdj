@@ -21,7 +21,8 @@ class TiBenchResult(models.Model):
     min = models.FloatField(default=0.0)
     max = models.FloatField(default=0.0)
     ts = models.DateTimeField()
-    kvargs = models.TextField(blank=True)
+    args = models.TextField(blank=True)
+    estimates = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
