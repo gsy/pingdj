@@ -1,7 +1,60 @@
 from django.shortcuts import render
 
+from .models import TiBenchResult, TiMethod
 
-def charts(request):
+
+def _get_charts(name, level):
+    method = TiMethod.objects.get(name='get', level='engine')
+    print(method)
+    charts = TiBenchResult.objects.filter(
+        method=method,
+        value_length=64,
+    ).order_by('ts')
+    timestaps = []
+    lower_bounds = []
+    upper_bounds = []
+    means = []
+    for item in charts:
+        timestaps.append(item.ts)
+        lower_bounds.append(item.lower_bound)
+        upper_bounds.append(item.upper_bound)
+        means.append(item.mean)
+    return timestaps, lower_bounds, upper_bounds, means
+
+
+def index(request):
+    timestaps_get, lower_bounds_get, upper_bounds_get, means_get = \
+        _get_charts('get', 'engine')
+    timestaps_put, lower_bounds_put, upper_bounds_put, means_put = \
+        _get_charts('put', 'engine')
+
+    groups = [
+        {
+            'group_name': 'engine',
+            'charts': [
+                {
+                    'chart_name': 'engine::get',
+                    'timestamps': timestaps_get,
+                    'lower_bound': lower_bounds_get,
+                    'upper_bound': upper_bounds_get,
+                    'mean': means_get,
+                },
+                {
+                    'chart_name': 'engine::put',
+                    'timestamps': timestaps_put,
+                    'lower_bound': lower_bounds_put,
+                    'upper_bound': upper_bounds_put,
+                    'mean': means_put,
+                },
+            ],
+        },
+    ]
+    context = {"groups": groups}
+    print(context)
+    return render(request, 'kvcharts/index.html', context)
+
+
+def demo(request):
     # x 轴是时间戳
     # y 轴是3条直线
     context = {
@@ -13,4 +66,4 @@ def charts(request):
             "avg": [51, 52, 57, 53, 43, 60],
         }
     }
-    return render(request, 'kvcharts/index.html', context)
+    return render(request, 'kvcharts/demo.html', context)
