@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 使用 static 关键字-->
+    <style type="text/css">
+     .chart {
+       height:240px;
+     }
+    </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  </head>
+</html>
+<body>
+  <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+  <div class="container">
+    <div class="row">
+      <div id="chart" class="chart col-md-12">
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+   // 基于准备好的 dom，初始化 echarts 实例
+   var backend_data = {{ data | safe }};
+   console.log("data:", backend_data)
+
+   function generate_option(chart) {
+     var children_functions = [];
+     var series = [];
+     for (i = 0; i < chart.children.length; i++) {
+       children_functions.push(chart.children[i].function_name);
+       series.push({
+         'name': chart.children[i].function_name,
+         'type': 'line',
+         'stack': 'total',
+         areaStyle: {},
+         data:chart.children[i].points
+       })
+     }
+     console.log(series)
+
+     var option = {
+       title: {
+         text: 'test',
+       },
+       tooltip : {
+         trigger: 'axis',
+         axisPointer: {
+           type: 'cross',
+           label: {
+             backgroundColor: '#6a7985'
+           }
+         }
+       },
+       legend: {
+         data: children_functions,
+       },
+       toolbox: {
+         feature: {
+           saveAsImage: {}
+         }
+       },
+       grid: {
+         left: '3%',
+         right: '4%',
+         bottom: '3%',
+         containLabel: true
+       },
+       xAxis : [
+         {
+           type : 'category',
+           boundaryGap : false,
+           data : chart.timestamps
+         }
+       ],
+       yAxis : [
+         {
+           type : 'value'
+         }
+       ],
+       series : series
+     }
+     return option
+   }
+
+   var div_id = "chart"
+   var div_chart = echarts.init(document.getElementById(div_id));
+   div_chart.setOption(generate_option(backend_data));
+  </script>
+  </div>
+</body>
