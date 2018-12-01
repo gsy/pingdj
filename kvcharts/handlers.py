@@ -40,7 +40,7 @@ def put_result(request):
     kwargs = {'method': method}
     kwargs['args'] = json.loads(data.get('args', '{}'))
     try:
-        kwargs['ts'] = datetime.datetime.strptime(data['ts'], '%Y%m%d:%H%M%S')
+        kwargs['ts'] = datetime.datetime.strptime(data['ts'], '%Y-%m-%d %H:%M:%S')
     except:
         return HttpResponse(status=400, content='invalid ts value')
 
