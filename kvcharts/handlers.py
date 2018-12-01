@@ -3,7 +3,7 @@ import json
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from dajngo.utils import timezone
+from django.utils import timezone
 
 from .models import TiBenchResult, TiMethod
 
