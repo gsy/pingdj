@@ -5,7 +5,6 @@ from .models import TiBenchResult, TiMethod
 
 def _get_charts(name, level):
     method = TiMethod.objects.get(name=name, level=level)
-    print(method)
     charts = TiBenchResult.objects.filter(
         method=method,
         value_length=64,
@@ -50,7 +49,6 @@ def index(request):
         },
     ]
     context = {"groups": groups}
-    print(context)
     return render(request, 'kvcharts/index.html', context)
 
 
@@ -77,7 +75,6 @@ def demo(request):
         },
     ]
     context = {"groups": groups}
-    print(context)
     return render(request, 'kvcharts/demo.html', context)
 
 

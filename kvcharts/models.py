@@ -28,6 +28,11 @@ class TiBenchResult(models.Model):
     estimates = models.TextField(blank=True)
     added = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = (
+            ('method', 'args', 'ts'),
+        )
+
     def __str__(self):
         return 'BenchResult - {}'.format(self.method)
 
