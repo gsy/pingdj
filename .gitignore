@@ -4,4 +4,6 @@ __pycache__/
 *.sqlite3
 *.log
 
+*_local.py
+
 data/samples/
