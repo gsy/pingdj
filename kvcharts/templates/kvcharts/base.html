@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+       <title>{% block title %}{% endblock %}{% block title_suffix %} KV Charts{% endblock %}</title>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+   </head>
+   <body style="height: 100%; margin: 0">
+
+   {% block content %}
+   {% endblock %}
+
+   {% block scripts_bottom %}{% endblock %}
+   </body>
+</html>
