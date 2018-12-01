@@ -13,35 +13,119 @@
   <div id="main" style="width:1280px;height:850px;"></div>
   <script type="text/javascript">
 
-   // 基于准备好的dom，初始化echarts实例
-   data_from_django = {{ data|safe }};
-   console.log("data: ", data_from_django);
-
+   // 基于准备好的 dom，初始化 echarts 实例
+   metrics = {{ data|safe }};
+   console.log("metric:", metrics);
+   var min_values = metrics.min
+   var max_values = metrics.max
+   var avg_values = metrics.avg
    var myChart = echarts.init(document.getElementById('main'));
-   option = {
-     legend: {},
-     tooltip: {},
-     dataset: {
-       // 提供一份数据。
-       source: [
-         ['product', '2015', '2016', '2017'],
-         ['Matcha Latte', 43.3, 85.8, 93.7],
-         ['Milk Tea', 83.1, 73.4, 55.1],
-         ['Cheese Cocoa', 86.4, 65.2, 82.5],
-         ['Walnut Brownie', 72.4, 53.9, 39.1]
-       ]
+
+   myChart.setOption(option = {
+     title: {
+       text: metrics.method_name,
+       subtext: 'Haha',
+       left: 'center'
      },
-     // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
-     xAxis: {type: 'category'},
-     // 声明一个 Y 轴，数值轴。
-     yAxis: {},
-     // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
-     series: [
-       {type: 'bar'},
-       {type: 'bar'},
-       {type: 'bar'}
-     ]
-   }
-   myChart.setOption(option);
+     tooltip: {
+       trigger: 'axis',
+       axisPointer: {
+         type: 'cross',
+         animation: false,
+         label: {
+           backgroundColor: '#ccc',
+           borderColor: '#aaa',
+           borderWidth: 1,
+           shadowBlur: 0,
+           shadowOffsetX: 0,
+           shadowOffsetY: 0,
+           textStyle: {
+             color: '#222'
+           }
+         }
+       },
+       formatter: function (params) {
+         return params[2].name + '<br />' + params[2].value;
+       }
+     },
+     grid: {
+       left: '13%',
+       right: '4%',
+       bottom: '3%',
+       containLabel: true
+     },
+     xAxis: {
+       type: 'category',
+       data: metrics.timestamp,
+       /* axisLabel: {
+        *   formatter: function (value, idx) {
+        *     var date = new Date(value);
+        *     return idx === 0 ? value : [date.getMonth() + 1, date.getDate()].join('-');
+        *   }
+        * },*/
+       splitLine: {
+         show: true,
+       },
+       boundaryGap: false,
+     },
+     yAxis: {
+       'type': 'value',
+       axisLabel: {
+         formatter: function (val) {
+           return val;
+         }
+       },
+       axisPointer: {
+         label: {
+           formatter: function (params) {
+             return params;
+           }
+         }
+       },
+       splitNumber: 3,
+       splitLine: {
+         show: true
+       }
+     },
+     series: [{
+       name: 'lower bound',
+       type: 'line',
+       data: min_values,
+       lineStyle: {
+         normal: {
+           opacity: 0
+         }
+       },
+       stack: 'metrics',
+       symbol: 'none'
+     }, {
+       name: 'upper bound',
+       type: 'line',
+       data: max_values,
+       lineStyle: {
+         normal: {
+           opacity: 0
+         }
+       },
+       areaStyle: {
+         normal: {
+           color: '#cce'
+         }
+       },
+       stack: 'metrics',
+       symbol: 'none'
+     }, {
+       type: 'line',
+       data: avg_values,
+       hoverAnimation: false,
+       symbolSize: 6,
+       itemStyle: {
+         normal: {
+           color: '#c2352'
+         }
+       },
+       showSymbol: false
+     }]
+   });
   </script>
 </body>

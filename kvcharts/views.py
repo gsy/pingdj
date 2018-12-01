@@ -2,13 +2,15 @@ from django.shortcuts import render
 
 
 def charts(request):
+    # x 轴是时间戳
+    # y 轴是3条直线
     context = {
-        "data": [
-            {"value": 235, "name": '视频广告'},
-            {"value": 274, "name": '联盟广告'},
-            {"value": 310, "name": '邮件营销'},
-            {"value": 335, "name": '直接访问'},
-            {"value": 400, "name": '搜索引擎'}
-        ]
+        "data": {
+            "method_name": "foo",
+            "timestamp": [1, 2, 3, 4, 5, 6],
+            "min": [10, 5, 8, 3, 7, 4],
+            "max": [100, 90, 80, 98, 102, 108],
+            "avg": [51, 52, 57, 53, 43, 60],
+        }
     }
     return render(request, 'kvcharts/index.html', context)
