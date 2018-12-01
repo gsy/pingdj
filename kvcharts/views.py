@@ -79,3 +79,25 @@ def demo(request):
     ]
     context = {"groups": groups}
     return render(request, 'kvcharts/demo.html', context)
+
+
+def demo_with_children(request):
+    data = {
+        'timestamps': [1, 2, 3, 4, 5, 6],
+        'children': [
+            {
+                'function_name': 'foo::method1',
+                'points': [150, 232, 201, 154, 190, 330, 410],
+            },
+            {
+                'function_name': 'foo::method2',
+                'points': [820, 932, 901, 934, 1290, 1330, 1320]
+            },
+            {
+                'function_name': 'foo::method3',
+                'points': [320, 332, 301, 334, 390, 330, 320]
+            },
+        ],
+    }
+    context = {"data": data}
+    return render(request, 'kvcharts/demo_with_children.html', context)
