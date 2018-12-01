@@ -4,7 +4,10 @@ from .models import TiBenchResult, TiMethod
 
 
 def _get_charts(name, level):
-    method = TiMethod.objects.get(name=name, level=level)
+    try:
+        method = TiMethod.objects.get(name=name, level=level)
+    except TiMethod.DoesNotExist:
+        return [], [], [], []
     charts = TiBenchResult.objects.filter(
         method=method,
         value_length=64,
@@ -21,33 +24,33 @@ def _get_charts(name, level):
     return timestaps, lower_bounds, upper_bounds, means
 
 
-def index(request):
-    timestaps_get, lower_bounds_get, upper_bounds_get, means_get = \
-        _get_charts('get', 'engine')
-    timestaps_put, lower_bounds_put, upper_bounds_put, means_put = \
-        _get_charts('put', 'engine')
+def _get_group_data(level):
+    data = {'group_name': level, 'charts': []}
+    query = TiMethod.objects.filter(level=level).values('name').distinct()
+    for item in query:
+        name = item['name']
+        timestaps, lower_bounds, upper_bounds, means = _get_charts(name, level)
+        data['charts'].append(
+            {
+                'chart_name': '{}::{}'.format(level, name),
+                'timestamps': timestaps,
+                'lower_bounds': lower_bounds,
+                'upper_bounds': upper_bounds,
+                'means': means,
+            }
+        )
+    return data
 
-    groups = [
-        {
-            'group_name': 'engine',
-            'charts': [
-                {
-                    'chart_name': 'engine::get',
-                    'timestamps': timestaps_get,
-                    'lower_bounds': lower_bounds_get,
-                    'upper_bounds': upper_bounds_get,
-                    'means': means_get,
-                },
-                {
-                    'chart_name': 'engine::put',
-                    'timestamps': timestaps_put,
-                    'lower_bounds': lower_bounds_put,
-                    'upper_bounds': upper_bounds_put,
-                    'means': means_put,
-                },
-            ],
-        },
-    ]
+
+def index(request):
+    query = TiMethod.objects.values('level').distinct()
+    group_name_list = [x['level'] for x in query]
+
+    groups = []
+    for group_name in group_name_list:
+        group_data = _get_group_data(group_name)
+        groups.append(group_data)
+
     context = {"groups": groups}
     return render(request, 'kvcharts/index.html', context)
 
