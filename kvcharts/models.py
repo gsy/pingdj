@@ -6,8 +6,11 @@ class TiMethod(models.Model):
     parent = models.ManyToManyField('TiMethod', related_name='ti_method_parent', blank=True)
     level = models.CharField(max_length=200)
 
+    def full_name(self):
+        return '{}::{}'.format(self.level, self.name)
+
     def __str__(self):
-        return self.name
+        return '{}::{}'.format(self.level, self.name)
 
     def __repr__(self):
         return '<TiMethod: {}>'.format(self.name)
