@@ -55,35 +55,27 @@ def index(request):
 
 
 def demo(request):
-    # x 轴是时间戳
-    # y 轴是3条直线
-    context = {
-        "data": {
-            "groups": [
+    groups = [
+        {
+            'group_name': 'engine',
+            'charts': [
                 {
-                    "group_name": "kv_api",
-                    "metrics": [
-                        {
-                            "method_name": "kv_api::get",
-                            "timestamp": [1, 2, 3, 4, 5, 6],
-                            "min": [10, 5, 8, 3, 7, 4],
-                            "max": [100, 90, 80, 98, 102, 108],
-                            "avg": [51, 52, 57, 53, 43, 60],
-                        },
-                        {
-                            "method_name": "kv_api::put",
-                            "timestamp": [1, 2, 3, 4, 5, 6],
-                            "min": [20, 15, 18, 13, 17, 14],
-                            "max": [60, 90, 80, 88, 62, 48],
-                            "avg": [51, 52, 57, 53, 43, 30],
-                        },
-                    ]
+                    'chart_name': 'engine::get',
+                    'timestamps': [1, 2, 3, 4, 5, 6],
+                    'lower_bounds': [10, 5, 8, 3, 7, 4],
+                    'upper_bounds': [100, 90, 80, 98, 102, 108],
+                    'means': [51, 52, 57, 53, 43, 60],
                 },
                 {
-                    "group_name": "test",
-                    "metrics": [],
-                }
-            ]
-        }
-    }
+                    'chart_name': 'engine::put',
+                    'timestamps': [1, 2, 3, 4, 5, 6],
+                    'lower_bounds': [20, 15, 18, 13, 17, 14],
+                    'upper_bounds': [60, 90, 80, 88, 62, 48],
+                    'means': [51, 52, 57, 53, 43, 30],
+                },
+            ],
+        },
+    ]
+    context = {"groups": groups}
+    print(context)
     return render(request, 'kvcharts/demo.html', context)
