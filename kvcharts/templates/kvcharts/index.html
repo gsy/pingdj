@@ -28,6 +28,18 @@
        var backend_data = {{ chart | safe }};
        var div_id = "{{chart.chart_name}}-{{forloop.counter}}";
 
+       function time_unit_fromatter(ts) {
+         if (ts >= 1000000) {
+           return `${ts/1000000} ms`;
+         }
+         else if (ts >= 1000 & ts < 1000000) {
+           return `${ts/1000} us`;
+         } else {
+           return `${ts} ns`;
+         }
+       }
+
+
        function generate_option(chart) {
          var min_values = chart.lower_bounds
          var max_values = chart.upper_bounds
@@ -42,7 +54,7 @@
            tooltip: {
              trigger: 'axis',
              axisPointer: {
-               type: 'cross',
+               type: 'none',
                animation: false,
                label: {
                  backgroundColor: '#ccc',
@@ -83,9 +95,7 @@
            yAxis: {
              'type': 'value',
              axisLabel: {
-               formatter: function(val) {
-                 return val;
-               }
+               formatter: time_unit_fromatter,
              },
              splitNumber: 3,
              splitLine: {
