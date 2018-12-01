@@ -21,6 +21,7 @@ class TiBenchResult(models.Model):
     min = models.FloatField(default=0.0)
     max = models.FloatField(default=0.0)
     ts = models.DateTimeField()
+    added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'BenchResult - {}'.format(self.method)
