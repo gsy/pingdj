@@ -43,7 +43,19 @@ def put_result(request):
     method, _ = TiMethod.objects.get_or_create(name=method_name, level=level)
 
     kwargs = {'method': method}
-    kwargs['args'] = json.loads(data.get('args', '{}'))
+    kwargs['args'] = data.get('args', '{}')
+    args = json.loads(kwargs['args'])
+    kwargs['key_length'] = int(args.get('key_length', 0))
+    kwargs['value_length'] = int(args.get('value_length', 0))
+
+    estimates = json.loads(data.get('estimates', '{}'))
+    mean = estimates['Mean']['point_estimate']
+    lower_bound = estimates['Mean']['confidence_interval']['lower_bound']
+    upper_bound = estimates['Mean']['confidence_interval']['upper_bound']
+    kwargs['mean'] = mean
+    kwargs['lower_bound'] = lower_bound
+    kwargs['upper_bound'] = upper_bound
+
     try:
         kwargs['ts'] = datetime.datetime.strptime(data['ts'], '%Y-%m-%d %H:%M:%S')
     except:
@@ -53,7 +65,6 @@ def put_result(request):
     kwargs_copy = kwargs.copy()
     kwargs_copy.pop('ts')
     kwargs_copy.pop('method')
-    print(json.dumps(kwargs_copy, indent=4))
 
-    obj = TiBenchResult.objects.create(**kwargs)
-    return HttpResponse("ok: {}".format(method.id))
+    TiBenchResult.objects.create(**kwargs)
+    return HttpResponse(json.dumps(kwargs_copy, indent=4))
