@@ -53,6 +53,7 @@ def _get_charts(name, level):
         return [], [], [], []
     charts = TiBenchResult.objects.filter(
         method=method,
+        key_length=64,
         value_length=64,
     ).order_by('ts')
     timestaps = []
