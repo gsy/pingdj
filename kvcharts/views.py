@@ -59,11 +59,31 @@ def demo(request):
     # y 轴是3条直线
     context = {
         "data": {
-            "method_name": "foo",
-            "timestamp": [1, 2, 3, 4, 5, 6],
-            "min": [10, 5, 8, 3, 7, 4],
-            "max": [100, 90, 80, 98, 102, 108],
-            "avg": [51, 52, 57, 53, 43, 60],
+            "groups": [
+                {
+                    "group_name": "kv_api",
+                    "metrics": [
+                        {
+                            "method_name": "kv_api::get",
+                            "timestamp": [1, 2, 3, 4, 5, 6],
+                            "min": [10, 5, 8, 3, 7, 4],
+                            "max": [100, 90, 80, 98, 102, 108],
+                            "avg": [51, 52, 57, 53, 43, 60],
+                        },
+                        {
+                            "method_name": "kv_api::put",
+                            "timestamp": [1, 2, 3, 4, 5, 6],
+                            "min": [20, 15, 18, 13, 17, 14],
+                            "max": [60, 90, 80, 88, 62, 48],
+                            "avg": [51, 52, 57, 53, 43, 30],
+                        },
+                    ]
+                },
+                {
+                    "group_name": "test",
+                    "metrics": [],
+                }
+            ]
         }
     }
     return render(request, 'kvcharts/demo.html', context)
