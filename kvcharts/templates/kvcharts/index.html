@@ -7,7 +7,7 @@
     <!-- 引入 ECharts 文件 使用 static 关键字-->
     <style type="text/css">
      .chart {
-       height:480px;
+       height:240px;
      }
     </style>
     <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
@@ -19,236 +19,140 @@
 <body>
   <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
   <div class="container">
-    {% for group in data.groups %}
+    {% for group in groups %}
     <div class="row">
-      {% for metric in group.metrics %}
-      <div id={{metric.method_name}} + parseInt({{forloop.counter}}) class="chart col-md-6"></div>
+      <h2> {{ group.group_name }} </h2>
+
+      {% for chart in group.charts %}
+      <div id="{{chart.chart_name}}-{{forloop.counter}}" class="chart col-md-4">
+      </div>
+
+      <script type="text/javascript">
+        // 基于准备好的 dom，初始化 echarts 实例
+        var backend_data = {{ chart | safe }};
+        var div_id = "{{chart.chart_name}}-{{forloop.counter}}";
+
+        function generate_option(chart) {
+            var min_values = chart.lower_bounds
+            var max_values = chart.upper_bounds
+            var avg_values = chart.means
+
+            option = {
+                title: {
+                    // text: "{{ group.group_name }}",
+                    subtext: chart.chart_name,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        animation: false,
+                        label: {
+                            backgroundColor: '#ccc',
+                            borderColor: '#aaa',
+                            borderWidth: 1,
+                            shadowBlur: 0,
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 0,
+                            textStyle: {
+                                color: '#222'
+                            }
+                        }
+                    },
+                    formatter: function(params) {
+                        return params[2].name + '<br />' + params[2].value;
+                    }
+                },
+                grid: {
+                    left: '13%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: chart.timestamps,
+                    /* axisLabel: {
+                     *   formatter: function (value, idx) {
+                     *     var date = new Date(value);
+                     *     return idx === 0 ? value : [date.getMonth() + 1, date.getDate()].join('-');
+                     *   }
+                     * },*/
+                    splitLine: {
+                        show: true,
+                    },
+                    boundaryGap: false,
+                },
+                yAxis: {
+                    'type': 'value',
+                    axisLabel: {
+                        formatter: function(val) {
+                            return val;
+                        }
+                    },
+                    axisPointer: {
+                        label: {
+                            formatter: function(params) {
+                                return params.value;
+                            }
+                        }
+                    },
+                    precision: 2,
+                    splitNumber: 3,
+                    splitLine: {
+                        show: true
+                    }
+                },
+                series: [{
+                    name: 'lower bound',
+                    type: 'line',
+                    data: min_values,
+                    lineStyle: {
+                        normal: {
+                            opacity: 0
+                        }
+                    },
+                    stack: 'metrics',
+                    symbol: 'none'
+                }, {
+                    name: 'upper bound',
+                    type: 'line',
+                    data: max_values,
+                    lineStyle: {
+                        normal: {
+                            opacity: 0
+                        }
+                    },
+                    areaStyle: {
+                        normal: {
+                            color: '#cce'
+                        }
+                    },
+                    stack: 'metrics',
+                    symbol: 'none'
+                }, {
+                    type: 'line',
+                    data: avg_values,
+                    hoverAnimation: false,
+                    symbolSize: 6,
+                    itemStyle: {
+                        normal: {
+                            color: '#c2352'
+                        }
+                    },
+                    showSymbol: false
+                }]
+            }
+            return option;
+        }
+
+        var div_chart = echarts.init(document.getElementById(div_id));
+        div_chart.setOption(generate_option(backend_data));
+      </script>
       {% endfor %}
+
     </div>
     {% endfor %}
   </div>
-
-  <script type="text/javascript">
-   // 基于准备好的 dom，初始化 echarts 实例
-   var backend_data = {{ data|safe }};
-
-   function generate_option(metric) {
-     var min_values = metric.min
-     var max_values = metric.max
-     var avg_values = metric.avg
-
-     option = {
-       title: {
-         text: level,
-         subtext: metric.method_name,
-         left: 'center'
-       },
-       tooltip: {
-         trigger: 'axis',
-         axisPointer: {
-           type: 'cross',
-           animation: false,
-           label: {
-             backgroundColor: '#ccc',
-             borderColor: '#aaa',
-             borderWidth: 1,
-             shadowBlur: 0,
-             shadowOffsetX: 0,
-             shadowOffsetY: 0,
-             textStyle: {
-               color: '#222'
-             }
-           }
-         },
-         formatter: function (params) {
-           return params[2].name + '<br />' + params[2].value;
-         }
-       },
-       grid: {
-         left: '13%',
-         right: '4%',
-         bottom: '3%',
-         containLabel: true
-       },
-       xAxis: {
-         type: 'category',
-         data: metric1.timestamp,
-         /* axisLabel: {
-          *   formatter: function (value, idx) {
-          *     var date = new Date(value);
-          *     return idx === 0 ? value : [date.getMonth() + 1, date.getDate()].join('-');
-          *   }
-          * },*/
-         splitLine: {
-           show: true,
-         },
-         boundaryGap: false,
-       },
-       yAxis: {
-         'type': 'value',
-         axisLabel: {
-           formatter: function (val) {
-             return val;
-           }
-         },
-         axisPointer: {
-           label: {
-             formatter: function (params) {
-               return params.value;
-             }
-           }
-         },
-         precision: 2,
-         splitNumber: 3,
-         splitLine: {
-           show: true
-         }
-       },
-       series: [{
-         name: 'lower bound',
-         type: 'line',
-         data: min_values,
-         lineStyle: {
-           normal: {
-             opacity: 0
-           }
-         },
-         stack: 'metrics',
-         symbol: 'none'
-       }, {
-         name: 'upper bound',
-         type: 'line',
-         data: max_values,
-         lineStyle: {
-           normal: {
-             opacity: 0
-           }
-         },
-         areaStyle: {
-           normal: {
-             color: '#cce'
-           }
-         },
-         stack: 'metrics',
-         symbol: 'none'
-       }, {
-         type: 'line',
-         data: avg_values,
-         hoverAnimation: false,
-         symbolSize: 6,
-         itemStyle: {
-           normal: {
-             color: '#c2352'
-           }
-         },
-         showSymbol: false
-       }]
-     }
-     return option;
-   }
-
-   {% for group in data.groups %}
-   {% for metric in group.metrics %}
-   var elementId = {{metric.method_name}} + parseInt({{forloop.counter}});
-   var chart = echarts.init(document.getElementById(elementId));
-   chart.setOption(generate_option(metric));
-   {% endfor %}
-   {% endfor %}
-     /*
-      * var metric2 = backend_data.metrics[1]
-      * var level = backend_data.level
-
-      * var chart1 = echarts.init(document.getElementById('chart1'));
-      * var chart2 = echarts.init(document.getElementById('chart2'));
-      * var chart3 = echarts.init(document.getElementById('chart3'));
-
-      * chart1.setOption(generate_option(metric1));
-      * chart2.setOption(generate_option(metric2));
-
-      * chart3.setOption({
-      *   title: {
-      *     text: '堆叠区域图'
-      *   },
-      *   tooltip : {
-      *     trigger: 'axis',
-      *     axisPointer: {
-      *       type: 'cross',
-      *       label: {
-      *         backgroundColor: '#6a7985'
-      *       }
-      *     }
-      *   },
-      *   legend: {
-      *     data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
-      *   },
-      *   toolbox: {
-      *     feature: {
-      *       saveAsImage: {}
-      *     }
-      *   },
-      *   grid: {
-      *     left: '3%',
-      *     right: '4%',
-      *     bottom: '3%',
-      *     containLabel: true
-      *   },
-      *   xAxis : [
-      *     {
-      *       type : 'category',
-      *       boundaryGap : false,
-      *       data : ['周一','周二','周三','周四','周五','周六','周日']
-      *     }
-      *   ],
-      *   yAxis : [
-      *     {
-      *       type : 'value'
-      *     }
-      *   ],
-      *   series : [
-      *     {
-      *       name:'邮件营销',
-      *       type:'line',
-      *       stack: '总量',
-      *       areaStyle: {},
-      *       data:[120, 132, 101, 134, 90, 230, 210]
-      *     },
-      *     {
-      *       name:'联盟广告',
-      *       type:'line',
-      *       stack: '总量',
-      *       areaStyle: {},
-      *       data:[220, 182, 191, 234, 290, 330, 310]
-      *     },
-      *     {
-      *       name:'视频广告',
-      *       type:'line',
-      *       stack: '总量',
-      *       areaStyle: {},
-      *       data:[150, 232, 201, 154, 190, 330, 410]
-      *     },
-      *     {
-      *       name:'直接访问',
-      *       type:'line',
-      *       stack: '总量',
-      *       areaStyle: {normal: {}},
-      *       data:[320, 332, 301, 334, 390, 330, 320]
-      *     },
-      *     {
-      *       name:'搜索引擎',
-      *       type:'line',
-      *       stack: '总量',
-      *       label: {
-      *         normal: {
-      *           show: true,
-      *           position: 'top'
-      *         }
-      *       },
-      *       areaStyle: {normal: {}},
-      *       data:[820, 932, 901, 934, 1290, 1330, 1320]
-      *     }
-      *   ]*/
-     /* }*/
-     /* )*/
-
-  </script>
 </body>
